@@ -61,7 +61,7 @@ jobs:
 
             ## Cách sử dụng
             1. Cài APK và mở ứng dụng.
-            2. Bật **Bật kiểm tra kết nối**.
+            2. Chọn **Bật kiểm tra**.
             3. Đặt ứng dụng và Google Play Services ở chế độ pin **Không hạn chế**; bật quyền tự khởi chạy trong cài đặt ROM.
             4. Cho phép tự khởi chạy cho ứng dụng chat/ngân hàng cần nhận thông báo.
 
