@@ -104,9 +104,9 @@ public final class HomeActivity extends Activity {
         });
 
         addHeader(content, "Cách dùng");
-        content.addView(makeText("Bật kiểm tra ở nút trạng thái phía trên. Cho phép tự khởi chạy các ứng dụng chat hoặc ngân hàng cần nhận tin, đồng thời khóa chúng trong màn hình đa nhiệm nếu điện thoại có tùy chọn này.", 14, SECONDARY), withTop(4));
-        content.addView(makeText("Lịch kiểm tra tự điều chỉnh khoảng 15–30 phút theo pin và mạng. ROM vẫn có thể trì hoãn alarm nền hoặc đóng ứng dụng đích; ứng dụng không bảo đảm thông báo tức thời.", 13, SECONDARY), withTop(9));
-        content.addView(makeText("Ứng dụng không yêu cầu quyền Internet và không gửi dữ liệu chẩn đoán ra ngoài điện thoại.", 13, SECONDARY), withTop(9));
+        content.addView(makeText("Bật kiểm tra ở nút trạng thái phía trên. Bật Thông báo, cho phép Tự khởi chạy các ứng dụng chat, email hoặc ngân hàng cần nhận tin như bình thường bạn hay làm.", 14, SECONDARY), withTop(4));
+        content.addView(makeText("Ứng dụng sẽ tự kiểm tra và điều chỉnh khoảng 15-30 phút theo pin và mạng. ROM vẫn có thể trì hoãn alarm nền hoặc đóng ứng dụng đích; ứng dụng không bảo đảm thông báo tức thời.", 13, SECONDARY), withTop(9));
+        content.addView(makeText("• Ứng dụng này không yêu cầu quyền Internet và không gửi dữ liệu chẩn đoán ra ngoài điện thoại.", 13, SECONDARY), withTop(9));
 
         scroller.addView(content);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
