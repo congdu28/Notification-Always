@@ -14,7 +14,7 @@ Notification Always hỗ trợ giảm tình trạng thông báo đến trễ tr�
 ## Cách sử dụng
 
 1. Tải APK mới nhất trong mục **Releases** của repository, cài đặt rồi mở Notification Always.
-2. Bật công tắc **Bật kiểm tra kết nối**.
+2. Nhấn nút **Bật kiểm tra**.
 3. Trong cài đặt pin của Notification Always, chọn **Không hạn chế** hoặc tắt tối ưu pin.
 4. Trong cài đặt ROM, cho phép Notification Always tự khởi chạy và chạy nền.
 5. Đặt Google Play Services ở chế độ pin **Không hạn chế** và cho phép chạy nền nếu máy có tùy chọn này.
