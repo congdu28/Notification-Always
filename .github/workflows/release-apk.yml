@@ -46,5 +46,20 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: Notification Always ${{ github.ref_name }}
-          generate_release_notes: true
+          body: |
+            # Notification Always
+
+            ## Tính năng
+            - Kiểm tra và khôi phục kết nối Google Play Services theo lịch để hỗ trợ hạn chế thông báo đến trễ.
+            - Tự lên lịch lại sau khi khởi động lại hoặc cập nhật ứng dụng.
+            - Điều chỉnh lịch theo trạng thái pin, sạc, tiết kiệm pin và mạng.
+            - Cung cấp lối tắt tới cài đặt pin, tự khởi chạy và Google Play Services.
+
+            ## Cách sử dụng
+            1. Cài APK và mở ứng dụng.
+            2. Bật **Bật kiểm tra kết nối**.
+            3. Đặt ứng dụng và Google Play Services ở chế độ pin **Không hạn chế**; bật quyền tự khởi chạy trong cài đặt ROM.
+            4. Cho phép tự khởi chạy cho ứng dụng chat/ngân hàng cần nhận thông báo.
+
+            Cần có Google Play Services. Hiệu quả còn tùy ROM và cài đặt nền của từng máy.
           files: ${{ runner.temp }}/Notification-Always-${{ github.ref_name }}.apk
