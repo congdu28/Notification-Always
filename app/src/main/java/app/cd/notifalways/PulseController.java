@@ -43,14 +43,18 @@ final class PulseController {
             scheduleNext(context);
         } else {
             AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            manager.cancel(alarmToken(context));
+            if (manager != null) manager.cancel(alarmToken(context));
             storage(context).edit().remove("planned_for").apply();
         }
     }
 
     static void sendConnectionNudge(Context context) {
         for (String action : CONNECTION_ACTIONS) {
-            context.sendBroadcast(new Intent(action).setPackage(GMS_PACKAGE));
+            try {
+                context.sendBroadcast(new Intent(action).setPackage(GMS_PACKAGE));
+            } catch (SecurityException ignored) {
+                // Some ROMs restrict internal Google Play Services broadcasts.
+            }
         }
         storage(context).edit().putLong("checked_at", System.currentTimeMillis()).apply();
     }
@@ -64,6 +68,7 @@ final class PulseController {
         if (!isActive(context)) return;
         long wait = chooseDelay(context);
         AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (manager == null) return;
         manager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() + wait, alarmToken(context));
         storage(context).edit()
@@ -99,14 +104,18 @@ final class PulseController {
             return 30 * 60_000L;
         }
 
-        ConnectivityManager network =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (network != null) {
-            NetworkCapabilities active =
-                    network.getNetworkCapabilities(network.getActiveNetwork());
-            if (active != null && active.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-                return 15 * 60_000L;
+        try {
+            ConnectivityManager network =
+                    (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (network != null) {
+                NetworkCapabilities active =
+                        network.getNetworkCapabilities(network.getActiveNetwork());
+                if (active != null && active.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                    return 15 * 60_000L;
+                }
             }
+        } catch (SecurityException ignored) {
+            // A restricted ROM must not make the app fail while it reads network state.
         }
         return 20 * 60_000L;
     }
