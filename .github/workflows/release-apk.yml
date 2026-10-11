@@ -58,9 +58,9 @@ jobs:
             # Notification Always
 
             ## Tính năng
-            - Chẩn đoán khả dụng của Google Play Services, Play Store và hạn chế nền của app.
+            - Kiểm tra Google Play Services và Play Store có cài/bật, cùng hạn chế nền của app.
             - Hướng dẫn mở cài đặt pin, tự khởi chạy và Google Play Services.
-            - Cho phép thử gửi tín hiệu định kỳ tới Google Play Services khi người dùng bật.
+            - Cho phép thử gửi tín hiệu định kỳ tới Google Play Services khi người dùng bật. Lịch 30–120 phút tùy pin và mạng, tạm dừng khi thiếu Google Play Services.
             - Hiển thị thời điểm alarm chạy và thời điểm thử gửi tín hiệu riêng biệt.
 
             ## Cách sử dụng
@@ -69,5 +69,5 @@ jobs:
             3. Cho phép Google Play Services và các ứng dụng cần nhận tin chạy nền, tự khởi chạy và hiển thị thông báo.
             4. Có thể bật **thử nghiệm định kỳ** để so sánh độ trễ trên cùng điện thoại.
 
-            Việc gửi tín hiệu không xác nhận kết nối FCM đã phục hồi. Hiệu quả còn tùy ROM, Google Play Services và ứng dụng nhận tin.
+            Trạng thái cài/bật không xác nhận FCM hoạt động. Việc gửi tín hiệu cũng không xác nhận kết nối FCM đã phục hồi. Hiệu quả còn tùy ROM, Google Play Services và ứng dụng nhận tin.
           files: ${{ runner.temp }}/Notification-Always-${{ github.ref_name }}.apk

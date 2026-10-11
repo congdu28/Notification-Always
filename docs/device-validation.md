@@ -5,11 +5,12 @@ GitHub Actions kiểm tra mã, build APK và bảo đảm APK không yêu cầu 
 ## Kiểm tra chức năng của app
 
 1. Cài APK mới và mở app. Thử nghiệm định kỳ phải đang tắt trên máy cài mới.
-2. Xem trạng thái Google Play Services, Google Play Store, hạn chế nền và tối ưu pin. So sánh với cài đặt hệ thống trên máy.
-3. Nhấn **Thử gửi tín hiệu ngay**. App phải cập nhật giờ thử gửi; màn hình vẫn ghi rõ Google Play Services chưa xác nhận xử lý.
+2. Xem trạng thái Google Play Services, Google Play Store, hạn chế nền và tối ưu pin. So sánh với cài đặt hệ thống trên máy; trạng thái cài/bật không chứng minh FCM hoạt động.
+3. Nhấn **Thử gửi tín hiệu ngay**. Khi có mạng và Google Play Services đang bật, app cập nhật giờ thử gửi; màn hình vẫn ghi rõ Google Play Services chưa xác nhận xử lý. Khi mất mạng hoặc Google Play Services tắt, app phải báo đã bỏ qua và không cập nhật giờ thử gửi.
 4. Bật thử nghiệm định kỳ. Xác nhận app hiện giờ alarm dự kiến. Để máy nghỉ qua ít nhất một chu kỳ, mở app và xem **Alarm chạy gần nhất**; giờ thực tế có thể trễ hơn dự kiến.
 5. Tắt thử nghiệm. Sau lần alarm đã xếp, xác nhận không có lần gửi tín hiệu mới.
 6. Nếu đã bật thử nghiệm, khởi động lại máy và kiểm tra app có xếp lại lịch hay không. Lặp lại khi bật chế độ hạn chế nền của ROM.
+7. Bật tiết kiệm pin, giảm pin xuống dưới 15% hoặc ngắt mạng rồi xem chu kỳ chuyển sang 120 phút. Khi Google Play Services tắt, lịch tạm dừng; bật lại và mở app để xếp lịch lại.
 
 ## Đo hiệu quả đối với FCM
 

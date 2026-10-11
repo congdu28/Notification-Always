@@ -6,10 +6,10 @@ final class SchedulePolicy {
 
     private SchedulePolicy() {}
 
-    static long delay(boolean charging, int batteryLevel, boolean powerSave, boolean cellular) {
-        if (charging) return 15 * MINUTE;
-        if ((batteryLevel >= 0 && batteryLevel < 15) || powerSave) return 30 * MINUTE;
-        if (cellular) return 15 * MINUTE;
-        return 20 * MINUTE;
+    static long delay(boolean charging, int batteryLevel, boolean powerSave, boolean online) {
+        if (!online || powerSave || (batteryLevel >= 0 && batteryLevel < 15)) {
+            return 120 * MINUTE;
+        }
+        return charging ? 30 * MINUTE : 60 * MINUTE;
     }
 }

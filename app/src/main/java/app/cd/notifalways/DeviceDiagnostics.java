@@ -8,9 +8,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.PowerManager;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-
 /** Read-only checks. None of these checks confirms that FCM is receiving messages. */
 final class DeviceDiagnostics {
     private static final String PLAY_STORE = "com.android.vending";
@@ -30,11 +27,22 @@ final class DeviceDiagnostics {
         }
 
         try {
-            int status = GoogleApiAvailability.getInstance()
-                    .isGooglePlayServicesAvailable(context);
-            return version + " · " + availabilityLabel(status);
+            ApplicationInfo info = context.getPackageManager()
+                    .getApplicationInfo(PulseController.gmsPackage(), 0);
+            return version + (info.enabled ? " · đang bật" : " · đang tắt");
+        } catch (PackageManager.NameNotFoundException absent) {
+            return "chưa cài";
         } catch (RuntimeException ignored) {
-            return version + " · chưa xác định khả dụng";
+            return version + " · chưa xác định trạng thái";
+        }
+    }
+
+    static boolean playServicesEnabled(Context context) {
+        try {
+            return context.getPackageManager()
+                    .getApplicationInfo(PulseController.gmsPackage(), 0).enabled;
+        } catch (PackageManager.NameNotFoundException | RuntimeException ignored) {
+            return false;
         }
     }
 
@@ -71,25 +79,6 @@ final class DeviceDiagnostics {
                     : "đang áp dụng";
         } catch (RuntimeException ignored) {
             return "không xác định";
-        }
-    }
-
-    private static String availabilityLabel(int status) {
-        switch (status) {
-            case ConnectionResult.SUCCESS:
-                return "API Google Play khả dụng";
-            case ConnectionResult.SERVICE_MISSING:
-                return "thiếu dịch vụ";
-            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
-                return "cần cập nhật";
-            case ConnectionResult.SERVICE_DISABLED:
-                return "đang bị tắt";
-            case ConnectionResult.SERVICE_INVALID:
-                return "không hợp lệ";
-            case ConnectionResult.SERVICE_UPDATING:
-                return "đang cập nhật";
-            default:
-                return "API Google Play báo lỗi " + status;
         }
     }
 }

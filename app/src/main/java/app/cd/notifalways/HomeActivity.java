@@ -96,15 +96,16 @@ public final class HomeActivity extends Activity {
         content.addView(makeText("2. Với từng ứng dụng chat, email hoặc ngân hàng: bật quyền Thông báo, cho phép chạy nền và Tự khởi chạy trong cài đặt ROM.", 14, SECONDARY), withTop(12));
         addAction(content, "Mở mục Tự khởi chạy", view -> openStartup());
 
-        content.addView(makeText("3. Chỉ khi dùng tính năng thử nghiệm bên trên, hãy cho phép Notification Always chạy nền. Việc bỏ tối ưu pin là tùy chọn của bạn.", 14, SECONDARY), withTop(12));
-        addAction(content, "Yêu cầu bỏ tối ưu pin cho app", view -> launch(DeviceGuidance.batteryAccess(this)));
+        content.addView(makeText("3. Chỉ khi dùng thử nghiệm định kỳ, hãy kiểm tra cài đặt chạy nền của Notification Always. Không cần bỏ tối ưu pin cho app nếu chỉ dùng phần chẩn đoán.", 14, SECONDARY), withTop(12));
+        addAction(content, "Cài đặt Notification Always", view ->
+                launch(DeviceGuidance.appInfo(this, getPackageName())));
 
         addHeader(content, "Thử nghiệm tín hiệu");
         content.addView(makeText("App gửi yêu cầu tới Google Play Services nhưng không nhận xác nhận kết nối FCM. Hãy so sánh độ trễ thông báo trên cùng điện thoại khi bật và tắt thử nghiệm.", 14, SECONDARY), withTop(4));
         addAction(content, "Thử gửi tín hiệu ngay", view -> {
             PulseController.requestImmediateCheck(this);
             updatePage();
-            Toast.makeText(this, "Đã thử gửi yêu cầu; chưa xác nhận Google Play Services xử lý.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, PulseController.storage(this).getString("last_check_status", "Chưa kiểm tra"), Toast.LENGTH_LONG).show();
         });
 
         content.addView(makeText("Alarm có thể bị Android/ROM trì hoãn hoặc chặn. App không đọc thông báo của ứng dụng khác và không bảo đảm thông báo đến tức thời.", 13, SECONDARY), withTop(9));
@@ -127,7 +128,7 @@ public final class HomeActivity extends Activity {
         setContentView(root);
         // Keep the screen usable even when an OEM ROM blocks alarm scheduling.
         try {
-            PulseController.scheduleNext(this);
+            PulseController.ensureScheduled(this);
         } catch (RuntimeException ignored) {
             // Scheduling can be retried after the user changes battery/background settings.
         }
@@ -157,7 +158,9 @@ public final class HomeActivity extends Activity {
         long next = PulseController.storage(this).getLong("planned_for", 0);
         stateLine.setText(active ? "Thử nghiệm tín hiệu đang bật" : "Thử nghiệm tín hiệu đang tắt");
         schedule.setText(active
-                ? (PulseController.storage(this).getBoolean("schedule_failed", false)
+                ? (PulseController.storage(this).getBoolean("paused_no_gms", false)
+                    ? "Tạm dừng: Google Play Services chưa bật. Mở lại app sau khi khắc phục."
+                    : PulseController.storage(this).getBoolean("schedule_failed", false)
                     ? "Không đặt được alarm trên thiết bị này."
                     : "Alarm dự kiến: " + (next == 0 ? "đang xếp lịch" : DateFormat.format("dd/MM HH:mm", next))
                         + " · Chu kỳ " + PulseController.delayLabel(this))
@@ -165,10 +168,9 @@ public final class HomeActivity extends Activity {
 
         long lastSignal = PulseController.storage(this).getLong("signal_sent_at", 0);
         long lastAlarm = PulseController.storage(this).getLong("alarm_fired_at", 0);
-        String signalStatus = lastSignal == 0 ? "chưa thử"
-                : PulseController.storage(this).getBoolean("signal_rejected", false)
-                    ? "Android từ chối ít nhất một yêu cầu"
-                    : "đã gửi yêu cầu; chưa xác nhận GMS xử lý";
+        long lastCheck = PulseController.storage(this).getLong("last_check_at", 0);
+        String signalStatus = PulseController.storage(this)
+                .getString("last_check_status", "chưa thử");
 
         report.setText("Thiết bị: " + DeviceGuidance.manufacturerLabel()
                 + "\nModel: " + android.os.Build.MODEL + " · Android " + android.os.Build.VERSION.RELEASE
@@ -178,7 +180,8 @@ public final class HomeActivity extends Activity {
                 + "\nTối ưu pin cho app: " + DeviceDiagnostics.batteryOptimization(this)
                 + "\nAlarm chạy gần nhất: " + (lastAlarm == 0 ? "chưa có" : DateFormat.format("dd/MM HH:mm:ss", lastAlarm))
                 + "\nThử gửi tín hiệu: " + (lastSignal == 0 ? "chưa có" : DateFormat.format("dd/MM HH:mm:ss", lastSignal))
-                + "\nKết quả gửi: " + signalStatus
+                + "\nKiểm tra gần nhất: " + (lastCheck == 0 ? "chưa có" : DateFormat.format("dd/MM HH:mm:ss", lastCheck))
+                + " · " + signalStatus
                 + "\nLưu ý: các trạng thái trên không xác nhận FCM nhận được tin.");
     }
 
