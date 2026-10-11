@@ -1,25 +1,26 @@
 # Notification Always
 
-Notification Always hỗ trợ giảm tình trạng thông báo đến trễ trên các điện thoại có ROM quản lý chặt ứng dụng chạy nền, thường gặp trên Xiaomi/Redmi/POCO, OPPO/realme/OnePlus, vivo/iQOO, HONOR và Huawei.
+Notification Always giúp chẩn đoán các cài đặt có thể làm thông báo đến chậm trên điện thoại dùng ROM quản lý nền chặt, thường gặp ở Xiaomi/Redmi/POCO, OPPO/realme/OnePlus, vivo/iQOO, HONOR và Huawei.
 
-## Tính năng
+## Chức năng
 
-- Kiểm tra và khôi phục kết nối Google Play Services theo lịch khoảng 15–30 phút.
-- Tự lên lịch lại sau khi khởi động lại điện thoại hoặc cập nhật ứng dụng.
-- Điều chỉnh lịch theo tình trạng pin, sạc, tiết kiệm pin và kết nối mạng.
-- Mở nhanh cài đặt pin, tự khởi chạy và Google Play Services.
-- Giao diện và hướng dẫn bằng tiếng Việt.
-- Không yêu cầu quyền Internet và không gửi dữ liệu chẩn đoán.
+- Kiểm tra Google Play Services có được cài và liệu API Google Play có sẵn theo bộ kiểm tra chính thức; hiển thị trạng thái Google Play Store.
+- Hiển thị trạng thái hạn chế nền và tối ưu pin của Notification Always.
+- Mở nhanh cài đặt Google Play Services, pin và tự khởi chạy để người dùng kiểm tra cài đặt trên ROM.
+- Cho phép **thử nghiệm** gửi tín hiệu tới Google Play Services theo lịch 15–30 phút. Tính năng này mặc định tắt và không xác nhận Google Play Services đã nhận hoặc xử lý tín hiệu.
+- Ghi riêng lần alarm thực sự chạy và lần app thử gửi tín hiệu.
+
+Ứng dụng không yêu cầu quyền Internet, không đọc thông báo của ứng dụng khác và không gửi dữ liệu chẩn đoán tới máy chủ.
 
 ## Cách sử dụng
 
-1. Tải APK mới nhất trong mục **Releases** của repository, cài đặt rồi mở Notification Always.
-2. Nhấn nút **Bật kiểm tra**.
-3. Trong cài đặt pin của Notification Always, chọn **Không hạn chế** hoặc tắt tối ưu pin.
-4. Trong cài đặt ROM, cho phép Notification Always tự khởi chạy và chạy nền.
-5. Đặt Google Play Services ở chế độ pin **Không hạn chế** và cho phép chạy nền nếu máy có tùy chọn này.
-6. Cho phép tự khởi chạy cho ứng dụng chat/ngân hàng cần nhận tin; khóa ứng dụng trong màn hình đa nhiệm nếu ROM hỗ trợ.
+1. Tải APK mới nhất trong mục **Releases**, cài đặt và mở ứng dụng.
+2. Xem **Chẩn đoán trên máy**. Nếu Google Play Services bị thiếu, tắt hoặc cần cập nhật, xử lý tình trạng đó trước.
+3. Cho phép Google Play Services và từng ứng dụng chat, email hoặc ngân hàng cần nhận tin chạy nền, tự khởi chạy và hiển thị thông báo trong cài đặt ROM.
+4. Nếu muốn đánh giá cơ chế gửi tín hiệu, bật **thử nghiệm định kỳ** và so sánh độ trễ thông báo trên cùng điện thoại khi bật và tắt. Có thể tắt bất cứ lúc nào.
 
 ## Giới hạn
 
-Ứng dụng hỗ trợ duy trì/kiểm tra kết nối nhưng không thể bảo đảm thông báo đến tức thời. ROM vẫn có thể trì hoãn tác vụ nền hoặc đóng ứng dụng nhận thông báo. Máy cần có Google Play Services để sử dụng chức năng này.
+Trạng thái Google Play Services khả dụng không xác nhận kết nối FCM đang hoạt động. Thời gian "thử gửi tín hiệu" cũng không phải bằng chứng thông báo đã được giao. Android hoặc ROM có thể trì hoãn hay chặn alarm, đặc biệt khi ứng dụng bị hạn chế nền. Nội dung và mức ưu tiên thông báo do ứng dụng gửi/nhận quyết định; Notification Always không thể thay đổi chúng.
+
+Xem [hướng dẫn kiểm tra trên điện thoại thật](docs/device-validation.md) để đánh giá tác dụng của tính năng thử nghiệm.

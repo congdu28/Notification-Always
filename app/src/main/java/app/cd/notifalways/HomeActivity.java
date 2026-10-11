@@ -2,13 +2,11 @@ package app.cd.notifalways;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.format.DateFormat;
 import android.view.Gravity;
@@ -60,7 +58,7 @@ public final class HomeActivity extends Activity {
         TextView heading = makeText("Notification Always", 29, TEXT);
         heading.setTypeface(null, Typeface.BOLD);
         content.addView(heading, withTop(4));
-        content.addView(makeText("Hỗ trợ duy trì kết nối thông báo trên điện thoại Xiaomi, OPPO, vivo và các ROM quản lý pin mạnh.", 15, SECONDARY), withTop(12));
+        content.addView(makeText("Kiểm tra các điều kiện ảnh hưởng tới thông báo trên ROM nội địa và hướng dẫn chỉnh cài đặt nền.", 15, SECONDARY), withTop(12));
 
         statusCard = new LinearLayout(this);
         statusCard.setOrientation(LinearLayout.VERTICAL);
@@ -85,28 +83,32 @@ public final class HomeActivity extends Activity {
         });
         statusCard.addView(toggleButton, withTop(12));
 
-        addHeader(content, "Thiết lập trên điện thoại");
-        content.addView(makeText("1. Cho phép Notification Always chạy nền và tắt tối ưu pin cho ứng dụng.", 14, SECONDARY), withTop(4));
-        addAction(content, "Mở cài đặt pin của ứng dụng", view -> launch(DeviceGuidance.batteryAccess(this)));
-        addAction(content, "Mở mục Tự khởi chạy", view -> openStartup());
+        addHeader(content, "Chẩn đoán trên máy");
+        report = makeText("", 14, SECONDARY);
+        content.addView(report, withTop(4));
+        addAction(content, "Làm mới chẩn đoán", view -> updatePage());
 
-        content.addView(makeText("2. Mở phần thông tin Google Play Services, chọn pin Không hạn chế và cho phép tự khởi chạy nếu ROM có tùy chọn này.", 14, SECONDARY), withTop(12));
+        addHeader(content, "Thiết lập thông báo");
+        content.addView(makeText("1. Kiểm tra Google Play Services và Google Play Store bên trên. Bật Google Play Services, cho phép chạy nền và chọn pin Không hạn chế nếu ROM có tùy chọn.", 14, SECONDARY), withTop(4));
         addAction(content, "Cài đặt Google Play Services", view ->
                 launch(DeviceGuidance.appInfo(this, PulseController.gmsPackage())));
 
-        addHeader(content, "Trạng thái");
-        report = makeText("", 14, SECONDARY);
-        content.addView(report, withTop(4));
-        addAction(content, "Kiểm tra ngay", view -> {
+        content.addView(makeText("2. Với từng ứng dụng chat, email hoặc ngân hàng: bật quyền Thông báo, cho phép chạy nền và Tự khởi chạy trong cài đặt ROM.", 14, SECONDARY), withTop(12));
+        addAction(content, "Mở mục Tự khởi chạy", view -> openStartup());
+
+        content.addView(makeText("3. Chỉ khi dùng tính năng thử nghiệm bên trên, hãy cho phép Notification Always chạy nền. Việc bỏ tối ưu pin là tùy chọn của bạn.", 14, SECONDARY), withTop(12));
+        addAction(content, "Yêu cầu bỏ tối ưu pin cho app", view -> launch(DeviceGuidance.batteryAccess(this)));
+
+        addHeader(content, "Thử nghiệm tín hiệu");
+        content.addView(makeText("App gửi yêu cầu tới Google Play Services nhưng không nhận xác nhận kết nối FCM. Hãy so sánh độ trễ thông báo trên cùng điện thoại khi bật và tắt thử nghiệm.", 14, SECONDARY), withTop(4));
+        addAction(content, "Thử gửi tín hiệu ngay", view -> {
             PulseController.requestImmediateCheck(this);
             updatePage();
-            Toast.makeText(this, "Đã yêu cầu Google Play Services kiểm tra kết nối.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Đã thử gửi yêu cầu; chưa xác nhận Google Play Services xử lý.", Toast.LENGTH_LONG).show();
         });
 
-        addHeader(content, "Cách dùng");
-        content.addView(makeText("Bật kiểm tra ở nút trạng thái phía trên. Bật Thông báo, cho phép Tự khởi chạy các ứng dụng chat, email hoặc ngân hàng cần nhận tin như bình thường bạn hay làm.", 14, SECONDARY), withTop(4));
-        content.addView(makeText("Ứng dụng sẽ tự kiểm tra và điều chỉnh khoảng 15-30 phút theo pin và mạng. ROM vẫn có thể trì hoãn alarm nền hoặc đóng ứng dụng đích; ứng dụng không bảo đảm thông báo tức thời.", 13, SECONDARY), withTop(9));
-        content.addView(makeText("• Ứng dụng này không yêu cầu quyền Internet và không gửi dữ liệu chẩn đoán ra ngoài điện thoại.", 13, SECONDARY), withTop(9));
+        content.addView(makeText("Alarm có thể bị Android/ROM trì hoãn hoặc chặn. App không đọc thông báo của ứng dụng khác và không bảo đảm thông báo đến tức thời.", 13, SECONDARY), withTop(9));
+        content.addView(makeText("• App không yêu cầu quyền Internet và không gửi dữ liệu chẩn đoán ra máy chủ.", 13, SECONDARY), withTop(9));
 
         scroller.addView(content);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -143,39 +145,41 @@ public final class HomeActivity extends Activity {
             statusCard.setBackgroundColor(active ? ACCENT : INACTIVE_CARD);
         }
         if (toggleButton != null) {
-            toggleButton.setText(active ? "Tạm dừng kiểm tra" : "Bật kiểm tra");
+            toggleButton.setText(active ? "Tắt thử nghiệm định kỳ" : "Bật thử nghiệm định kỳ");
             toggleButton.setTextColor(active ? ACCENT : TEXT);
             toggleButton.setBackgroundTintList(ColorStateList.valueOf(
                     active ? Color.WHITE : INACTIVE_BUTTON));
             toggleButton.setContentDescription(active
-                    ? "Đang bật. Chạm để tạm dừng kiểm tra kết nối."
-                    : "Đang tắt. Chạm để bật kiểm tra kết nối.");
+                    ? "Đang bật. Chạm để tắt thử nghiệm gửi tín hiệu định kỳ."
+                    : "Đang tắt. Chạm để bật thử nghiệm gửi tín hiệu định kỳ.");
         }
 
         long next = PulseController.storage(this).getLong("planned_for", 0);
-        long last = PulseController.storage(this).getLong("checked_at", 0);
-        stateLine.setText(active ? "Kiểm tra kết nối đang bật" : "Đang tạm dừng");
+        stateLine.setText(active ? "Thử nghiệm tín hiệu đang bật" : "Thử nghiệm tín hiệu đang tắt");
         schedule.setText(active
-                ? "Dự kiến lần sau: " + (next == 0 ? "đang xếp lịch" : DateFormat.format("HH:mm", next))
-                    + " · Chu kỳ " + PulseController.delayLabel(this)
-                : "Bật lại để chạy kiểm tra định kỳ.");
+                ? (PulseController.storage(this).getBoolean("schedule_failed", false)
+                    ? "Không đặt được alarm trên thiết bị này."
+                    : "Alarm dự kiến: " + (next == 0 ? "đang xếp lịch" : DateFormat.format("dd/MM HH:mm", next))
+                        + " · Chu kỳ " + PulseController.delayLabel(this))
+                : "Không gửi tín hiệu định kỳ. Bật nếu muốn thử nghiệm.");
 
-        boolean excluded = false;
-        PowerManager battery = (PowerManager) getSystemService(POWER_SERVICE);
-        if (battery != null) excluded = battery.isIgnoringBatteryOptimizations(getPackageName());
-        String servicesVersion;
-        try {
-            PackageInfo gms = getPackageManager().getPackageInfo(PulseController.gmsPackage(), 0);
-            servicesVersion = gms.versionName == null ? "Đã cài" : gms.versionName;
-        } catch (Exception absent) {
-            servicesVersion = "Chưa phát hiện";
-        }
+        long lastSignal = PulseController.storage(this).getLong("signal_sent_at", 0);
+        long lastAlarm = PulseController.storage(this).getLong("alarm_fired_at", 0);
+        String signalStatus = lastSignal == 0 ? "chưa thử"
+                : PulseController.storage(this).getBoolean("signal_rejected", false)
+                    ? "Android từ chối ít nhất một yêu cầu"
+                    : "đã gửi yêu cầu; chưa xác nhận GMS xử lý";
 
         report.setText("Thiết bị: " + DeviceGuidance.manufacturerLabel()
                 + "\nModel: " + android.os.Build.MODEL + " · Android " + android.os.Build.VERSION.RELEASE
-                + "\nGoogle Play Services: " + servicesVersion
-                + "\nTối ưu pin cho app: " + (excluded ? "đã bỏ qua" : "đang bật")
-                + "\nKiểm tra gần nhất: " + (last == 0 ? "chưa có" : DateFormat.format("HH:mm:ss", last)));
+                + "\nGoogle Play Services: " + DeviceDiagnostics.playServices(this)
+                + "\nGoogle Play Store: " + DeviceDiagnostics.playStore(this)
+                + "\nHạn chế nền của app: " + DeviceDiagnostics.backgroundRestriction(this)
+                + "\nTối ưu pin cho app: " + DeviceDiagnostics.batteryOptimization(this)
+                + "\nAlarm chạy gần nhất: " + (lastAlarm == 0 ? "chưa có" : DateFormat.format("dd/MM HH:mm:ss", lastAlarm))
+                + "\nThử gửi tín hiệu: " + (lastSignal == 0 ? "chưa có" : DateFormat.format("dd/MM HH:mm:ss", lastSignal))
+                + "\nKết quả gửi: " + signalStatus
+                + "\nLưu ý: các trạng thái trên không xác nhận FCM nhận được tin.");
     }
 
     private void openStartup() {

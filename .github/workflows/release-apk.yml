@@ -44,7 +44,11 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           chmod +x ./gradlew
-          ./gradlew --no-daemon :app:assembleRelease
+          ./gradlew --no-daemon :app:testDebugUnitTest :app:assembleRelease
+          if "$ANDROID_HOME/build-tools/35.0.0/aapt" dump permissions app/build/outputs/apk/release/app-release.apk | grep -q 'android.permission.INTERNET'; then
+            echo 'Release APK unexpectedly requests Internet access.'
+            exit 1
+          fi
           cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/Notification-Always-${GITHUB_REF_NAME}.apk"
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
@@ -54,16 +58,16 @@ jobs:
             # Notification Always
 
             ## Tính năng
-            - Kiểm tra và khôi phục kết nối Google Play Services theo lịch để hỗ trợ hạn chế thông báo đến trễ.
-            - Tự lên lịch lại sau khi khởi động lại hoặc cập nhật ứng dụng.
-            - Điều chỉnh lịch theo trạng thái pin, sạc, tiết kiệm pin và mạng.
-            - Cung cấp lối tắt tới cài đặt pin, tự khởi chạy và Google Play Services.
+            - Chẩn đoán khả dụng của Google Play Services, Play Store và hạn chế nền của app.
+            - Hướng dẫn mở cài đặt pin, tự khởi chạy và Google Play Services.
+            - Cho phép thử gửi tín hiệu định kỳ tới Google Play Services khi người dùng bật.
+            - Hiển thị thời điểm alarm chạy và thời điểm thử gửi tín hiệu riêng biệt.
 
             ## Cách sử dụng
             1. Cài APK và mở ứng dụng.
-            2. Chọn **Bật kiểm tra**.
-            3. Đặt ứng dụng và Google Play Services ở chế độ pin **Không hạn chế**; bật quyền tự khởi chạy trong cài đặt ROM.
-            4. Cho phép tự khởi chạy cho ứng dụng chat/ngân hàng cần nhận thông báo.
+            2. Xem phần **Chẩn đoán trên máy** và xử lý các lỗi được báo.
+            3. Cho phép Google Play Services và các ứng dụng cần nhận tin chạy nền, tự khởi chạy và hiển thị thông báo.
+            4. Có thể bật **thử nghiệm định kỳ** để so sánh độ trễ trên cùng điện thoại.
 
-            Cần có Google Play Services. Hiệu quả còn tùy ROM và cài đặt nền của từng máy.
+            Việc gửi tín hiệu không xác nhận kết nối FCM đã phục hồi. Hiệu quả còn tùy ROM, Google Play Services và ứng dụng nhận tin.
           files: ${{ runner.temp }}/Notification-Always-${{ github.ref_name }}.apk

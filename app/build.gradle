@@ -8,8 +8,8 @@ android {
         applicationId 'app.cd.notifalways'
         minSdk 24
         targetSdk 35
-        versionCode 9
-        versionName '1.0.8'
+        versionCode 10
+        versionName '1.0.9'
     }
 
     compileOptions {
@@ -32,4 +32,9 @@ android {
             signingConfig signingConfigs.release
         }
     }
+}
+
+dependencies {
+    implementation 'com.google.android.gms:play-services-base:18.11.0'
+    testImplementation 'junit:junit:4.13.2'
 }

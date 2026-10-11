@@ -11,7 +11,7 @@ import android.os.BatteryManager;
 import android.os.PowerManager;
 import android.os.SystemClock;
 
-/** Schedules short connection checks without maintaining a permanent background service. */
+/** Schedules optional, unverified signals to Google Play services. */
 final class PulseController {
     private static final String STORAGE = "notification_always";
     private static final String SIGNAL = "app.cd.notifalways.PULSE";
@@ -33,7 +33,7 @@ final class PulseController {
     }
 
     static boolean isActive(Context context) {
-        return storage(context).getBoolean("active", true);
+        return storage(context).getBoolean("active", false);
     }
 
     static void setActive(Context context, boolean active) {
@@ -43,20 +43,31 @@ final class PulseController {
             scheduleNext(context);
         } else {
             AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            if (manager != null) manager.cancel(alarmToken(context));
-            storage(context).edit().remove("planned_for").apply();
+            if (manager != null) {
+                try {
+                    manager.cancel(alarmToken(context));
+                } catch (RuntimeException ignored) {
+                    // A late alarm still checks the stored active flag before doing any work.
+                }
+            }
+            storage(context).edit().remove("planned_for").remove("schedule_failed").apply();
         }
     }
 
     static void sendConnectionNudge(Context context) {
+        boolean rejected = false;
         for (String action : CONNECTION_ACTIONS) {
             try {
                 context.sendBroadcast(new Intent(action).setPackage(GMS_PACKAGE));
-            } catch (SecurityException ignored) {
-                // Some ROMs restrict internal Google Play Services broadcasts.
+            } catch (RuntimeException ignored) {
+                // These internal actions are not a supported connection health API.
+                rejected = true;
             }
         }
-        storage(context).edit().putLong("checked_at", System.currentTimeMillis()).apply();
+        storage(context).edit()
+                .putLong("signal_sent_at", System.currentTimeMillis())
+                .putBoolean("signal_rejected", rejected)
+                .apply();
     }
 
     static void requestImmediateCheck(Context context) {
@@ -68,16 +79,25 @@ final class PulseController {
         if (!isActive(context)) return;
         long wait = chooseDelay(context);
         AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (manager == null) return;
-        manager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + wait, alarmToken(context));
-        storage(context).edit()
-                .putLong("planned_for", System.currentTimeMillis() + wait)
-                .apply();
+        if (manager == null) {
+            storage(context).edit().remove("planned_for").putBoolean("schedule_failed", true).apply();
+            return;
+        }
+        try {
+            manager.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + wait, alarmToken(context));
+            storage(context).edit()
+                    .putLong("planned_for", System.currentTimeMillis() + wait)
+                    .putBoolean("schedule_failed", false)
+                    .apply();
+        } catch (RuntimeException ignored) {
+            storage(context).edit().remove("planned_for").putBoolean("schedule_failed", true).apply();
+        }
     }
 
     static void handleAlarm(Context context) {
         if (!isActive(context)) return;
+        storage(context).edit().putLong("alarm_fired_at", System.currentTimeMillis()).apply();
         sendConnectionNudge(context);
         scheduleNext(context);
     }
@@ -96,27 +116,30 @@ final class PulseController {
         BatteryManager battery =
                 (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
         PowerManager power = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-
-        if (battery != null && battery.isCharging()) return 15 * 60_000L;
-        int level = battery == null ? 100
-                : battery.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-        if ((level >= 0 && level < 15) || (power != null && power.isPowerSaveMode())) {
-            return 30 * 60_000L;
+        boolean charging = false;
+        int level = -1;
+        boolean powerSave = false;
+        try {
+            if (battery != null) {
+                charging = battery.isCharging();
+                level = battery.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+            }
+            if (power != null) powerSave = power.isPowerSaveMode();
+        } catch (RuntimeException ignored) {
+            // Keep the default interval if the ROM does not expose battery state reliably.
         }
-
+        boolean cellular = false;
         try {
             ConnectivityManager network =
                     (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             if (network != null) {
                 NetworkCapabilities active =
                         network.getNetworkCapabilities(network.getActiveNetwork());
-                if (active != null && active.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-                    return 15 * 60_000L;
-                }
+                cellular = active != null && active.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
             }
-        } catch (SecurityException ignored) {
+        } catch (RuntimeException ignored) {
             // A restricted ROM must not make the app fail while it reads network state.
         }
-        return 20 * 60_000L;
+        return SchedulePolicy.delay(charging, level, powerSave, cellular);
     }
 }
