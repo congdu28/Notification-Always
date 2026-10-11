@@ -60,7 +60,8 @@ jobs:
             ## Tính năng
             - Kiểm tra Google Play Services và Play Store có cài/bật, cùng hạn chế nền của app.
             - Hướng dẫn mở cài đặt pin, tự khởi chạy và Google Play Services.
-            - Cho phép thử gửi tín hiệu định kỳ tới Google Play Services khi người dùng bật. Lịch 30–120 phút tùy pin và mạng, tạm dừng khi thiếu Google Play Services.
+            - Cho phép thử gửi tín hiệu định kỳ tới Google Play Services khi người dùng bật. Lịch 15–30 phút như trước, tăng lên 60 phút khi pin dưới 20% và không sạc.
+            - Có tùy chọn cho phép app bỏ qua tối ưu pin khi thử nghiệm định kỳ.
             - Hiển thị thời điểm alarm chạy và thời điểm thử gửi tín hiệu riêng biệt.
 
             ## Cách sử dụng

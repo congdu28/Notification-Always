@@ -6,8 +6,8 @@ Notification Always giúp chẩn đoán các cài đặt có thể làm thông b
 
 - Kiểm tra Google Play Services và Google Play Store có được cài và bật hay không bằng API sẵn có của Android. Kiểm tra này không xác định ROM có đầy đủ tính năng Google hay không.
 - Hiển thị trạng thái hạn chế nền và tối ưu pin của Notification Always.
-- Mở nhanh cài đặt Google Play Services, app và tự khởi chạy để người dùng kiểm tra cài đặt trên ROM.
-- Cho phép **thử nghiệm** gửi tín hiệu tới Google Play Services theo lịch 30 phút khi sạc, 60 phút khi dùng pin và 120 phút khi pin yếu, tiết kiệm pin hoặc mất mạng. Khi Google Play Services chưa bật, lịch tự tạm dừng. Khi mất mạng hoặc tiết kiệm pin, alarm được gộp với hoạt động hệ thống và có thể chạy trễ. Tính năng này mặc định tắt và không xác nhận Google Play Services đã nhận hoặc xử lý tín hiệu.
+- Mở nhanh cài đặt Google Play Services, pin và tự khởi chạy để người dùng kiểm tra cài đặt trên ROM. Người dùng có thể cho phép app bỏ qua tối ưu pin khi bật thử nghiệm định kỳ.
+- Cho phép **thử nghiệm** gửi tín hiệu tới Google Play Services theo lịch 15 phút khi sạc hoặc dùng mạng di động, 20 phút trong điều kiện thường, 30 phút khi bật tiết kiệm pin, và 60 phút khi pin dưới 20% (trừ khi đang sạc). Tính năng này mặc định tắt và không xác nhận Google Play Services đã nhận hoặc xử lý tín hiệu.
 - Ghi riêng lần alarm thực sự chạy và lần app thử gửi tín hiệu.
 
 Ứng dụng không yêu cầu quyền Internet, không đọc thông báo của ứng dụng khác và không gửi dữ liệu chẩn đoán tới máy chủ.

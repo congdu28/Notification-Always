@@ -37,15 +37,6 @@ final class DeviceDiagnostics {
         }
     }
 
-    static boolean playServicesEnabled(Context context) {
-        try {
-            return context.getPackageManager()
-                    .getApplicationInfo(PulseController.gmsPackage(), 0).enabled;
-        } catch (PackageManager.NameNotFoundException | RuntimeException ignored) {
-            return false;
-        }
-    }
-
     static String playStore(Context context) {
         try {
             ApplicationInfo info = context.getPackageManager().getApplicationInfo(PLAY_STORE, 0);

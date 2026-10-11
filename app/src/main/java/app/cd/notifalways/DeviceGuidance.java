@@ -28,6 +28,11 @@ final class DeviceGuidance {
         return android.os.Build.MANUFACTURER;
     }
 
+    static Intent batteryAccess(Context context) {
+        return new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                Uri.parse("package:" + context.getPackageName()));
+    }
+
     static Intent appInfo(Context context, String packageName) {
         return new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                 Uri.parse("package:" + packageName));
